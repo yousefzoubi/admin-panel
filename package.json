@@ -1,0 +1,33 @@
+{
+  "name": "admin-panel",
+  "version": "1.0.0",
+  "description":  "Admin panel REST API with JWT auth, RBAC, OTP login and real-time chat",
+  "main": "index.js",
+  "scripts": {
+  "start": "tsx src/index.js",
+  "dev": "tsx watch src/index.js",
+  "prisma:generate": "prisma generate",
+  "prisma:migrate": "prisma migrate deploy"
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^10.0.10",
+    "pg": "^8.23.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "prisma": "^7.10.0",
+    "tsx": "^4.23.13"
+  }
+}

@@ -1,0 +1,216 @@
+### =========================
+### AUTH
+### =========================q
+
+### Register a user
+POST http://localhost:9999/register
+Content-Type: application/json
+
+{
+  "username": "xxx",
+  "email": "xxxx.ll@ss",
+  "password": "12345"
+}
+
+### Login
+# @name login
+
+POST http://localhost:9999/login
+Content-Type: application/json
+
+{
+  "email": "ali@example.com",
+  "password": "123456"
+}
+
+###
+POST http://localhost:9999/login/verify-otp
+Content-Type: application/json
+
+{
+  "userId": 39,
+  "otp": "266127"
+}
+
+
+> {%
+    client.global.set("adminToken", response.body.accessToken);
+    client.global.set("adminRefreshToken", response.body.refreshToken);
+
+    // Optional generic variables
+    client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+### Login as second user
+# @name loginUser2
+
+POST http://localhost:9999/login
+Content-Type: application/json
+
+{
+  "email": "eeee@example.com",
+  "password": "123456"
+}
+
+> {%
+    client.global.set("user2Token", response.body.accessToken);
+%}
+
+
+
+
+### =========================
+### USERS - ADMIN ONLY
+### =========================
+
+
+
+### Get all users
+GET http://localhost:9999/users?page=1&limit=6
+Authorization: Bearer {{accessToken}}
+
+
+### Get specific user
+GET http://localhost:9999/users/61
+Authorization: Bearer {{accessToken}}
+
+
+### Update user
+PUT http://localhost:9999/users/61
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "username": "yousef36_updated"
+}
+
+
+//Attention : deleteing user may fail because here are articles related to it (due to a foreign key).
+//عدلتها بالسكيما وخليته يحذف اليوزر وكلشي مرتبط فيه
+
+//رجعت عدلتها وخليته ما يحذف اذا مرتبط بداتا ثانية
+//soft deltete
+
+
+### Delete user
+DELETE http://localhost:9999/users/68
+Authorization: Bearer {{accessToken}}
+
+### REstore user
+POST http://localhost:9999/users/63/restore
+Authorization: Bearer {{accessToken}}
+
+### =========================
+### ARTICLES
+### =========================
+
+### Get all articles
+GET http://localhost:9999/articles
+Authorization: Bearer {{accessToken}}
+
+
+### Insert article
+POST http://localhost:9999/articles
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "randomField": "hello"
+}
+
+
+### Get specific article
+GET http://localhost:9999/articles/
+Authorization: Bearer {{accessToken}}
+
+
+### Update article
+PUT http://localhost:9999/articles/2
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "titleAr": "editedمرحبا",
+  "contentAr": "نننedited",
+  "titleEn": "edited hello2",
+  "contentEn": "edited hihi222"
+}
+
+
+### Delete article
+DELETE http://localhost:9999/articles/10
+Authorization: Bearer {{accessToken}}
+
+
+### Get user's articles
+GET http://localhost:9999/users/74/articles
+Authorization: Bearer {{accessToken}}
+
+
+### =========================
+### AUDIT LOGS - ADMIN ONLY
+### =========================
+
+### Get audit logs
+GET http://localhost:9999/audit-logs?page=1&limit=6
+Authorization: Bearer {{accessToken}}
+
+
+### Refresh Access Token
+POST http://localhost:9999/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "4c8655b83152271eb16c223f8317e25d7cd0ae5e62bb3dafc8327164b07190c39f8999401b147f7b3b896432feab6ba0ec4a30c1a09cf99ce4f740405b7e5ce4"
+}
+
+
+### Logout
+POST http://localhost:9999/logout
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+
+### Create conversation as User
+# @name createConversation
+POST http://localhost:9999/conversations
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "participantId": 61
+}
+
+
+### Get my conversations
+
+GET http://localhost:9999/conversations
+Authorization: Bearer {{adminToken}}
+
+
+### Get conversation messages
+
+GET http://localhost:9999/conversations/1/messages?page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+
+### Create message
+
+POST http://localhost:9999/conversations/1/messages
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "content": "hey hey"
+}
+
+
+### Test as User 2
+
+GET http://localhost:9999/conversations
+Authorization: Bearer {{user2Token}}

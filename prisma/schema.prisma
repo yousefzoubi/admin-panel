@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  EDITOR
+  MODERATOR
+  ADMIN
+}
+
+enum Action {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  VIEW
+  RESTORE
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique
+  password String
+  role     Role   @default(USER)
+
+  articles      Article[]
+  auditLogs     AuditLog[]
+  refreshTokens RefreshToken[]
+  loginOtps     LoginOtp[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime? //معناها انه اختياري عشان ما يسجل قيمة لما انشئ مستخدم جديد (nullable)can be null
+
+  conversationMembers ConversationMember[]
+  messages            Message[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Article {
+  id        Int     @id @default(autoincrement())
+  titleAr   String?
+  contentAr String?
+  titleEn   String?
+  contentEn String?
+
+  isPublished Boolean @default(false)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id       Int    @id @default(autoincrement())
+  userId   Int
+  action   Action
+  entity   String
+  entityId Int? //خليته اختياري عشان مرات ما رح اعطيها قيمة زي مثلا لما اجيب كل الarticles
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Conversation {
+  id        Int      @id @default(autoincrement())
+  conversationKey String? @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members  ConversationMember[]
+  messages Message[]
+}
+
+model ConversationMember {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  conversationId Int
+  joinedAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conversationId])
+}
+
+model Message {
+  id             Int       @id @default(autoincrement())
+  content        String
+  senderId       Int
+  conversationId Int
+  createdAt      DateTime  @default(now())
+  isRead         Boolean   @default(false)
+  readAt         DateTime?
+
+  // الرسالة تابعة للمستخدم الذي أرسلها
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  // الرسالة تابعة لمحادثة معينة
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model LoginOtp {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int       @default(0)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
